@@ -1,0 +1,25 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    is_moderator BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE posts DROP COLUMN author;
+
+ALTER TABLE posts ADD COLUMN user_id INTEGER NOT NULL;
+
+ALTER TABLE posts
+ADD CONSTRAINT fk_posts_users
+FOREIGN KEY (user_id) REFERENCES users(id)
+ON DELETE CASCADE;
+
+ALTER TABLE comments DROP COLUMN author;
+
+ALTER TABLE comments ADD COLUMN user_id INTEGER NOT NULL;
+
+ALTER TABLE comments
+ADD CONSTRAINT fk_comments_users
+FOREIGN KEY (user_id) REFERENCES users(id)
+ON DELETE CASCADE;
