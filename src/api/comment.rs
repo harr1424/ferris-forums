@@ -1,23 +1,13 @@
-use crate::model::comment::{Comment, NewComment};
+use crate::model::comment::{Comment, NewComment, UpdateComment};
 use crate::repo::comment as comment_repo;
 use actix_web::{
-    get, post,
+    delete, get, patch, post,
     web::{Data, Json, Path},
     HttpResponse, Result,
 };
 use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
-
-#[get("/posts/{post_id}/comments")]
-pub async fn get_comments(pool: Data<PgPool>, path: Path<Uuid>) -> Result<Json<Vec<Comment>>> {
-    let post_id = path.into_inner();
-    let comments = comment_repo::get_comments_by_post(&pool, post_id)
-        .await
-        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
-
-    Ok(Json(comments))
-}
 
 #[post("/posts/{post_id}/comments")]
 pub async fn create_comment(
@@ -38,6 +28,43 @@ pub async fn create_comment(
     let comment_id = comment_repo::create_comment(&pool, &comment)
         .await
         .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(HttpResponse::Ok().body(comment_id.to_string()))
+}
+
+#[get("/posts/{post_id}/comments")]
+pub async fn get_comments(pool: Data<PgPool>, path: Path<Uuid>) -> Result<Json<Vec<Comment>>> {
+    let post_id = path.into_inner();
+    let comments = comment_repo::get_comments_by_post(&pool, post_id)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(Json(comments))
+}
+
+#[patch("/comments")]
+pub async fn update_comment(
+    pool: Data<PgPool>,
+    body: Json<UpdateComment>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let comment_id = body.id;
+    let update_content = &body.content;
+
+    todo!();
+    // UPDATE posts SET content = update_content WHERE id = comment_id
+
+    Ok(HttpResponse::Ok().body(comment_id.to_string()))
+}
+
+#[delete("/comments/{comment_id}")]
+pub async fn delete_comment(
+    pool: Data<PgPool>,
+    path: Path<Uuid>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let comment_id = path.into_inner();
+
+    todo!();
+    // DELETE FROM comments where id = comment_id
 
     Ok(HttpResponse::Ok().body(comment_id.to_string()))
 }

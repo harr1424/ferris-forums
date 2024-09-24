@@ -18,3 +18,9 @@ pub struct NewComment {
     pub content: String,
     pub parent_id: Option<Uuid>,
 }
+
+#[derive(Deserialize)]
+pub struct UpdateComment {
+    pub id: Uuid,
+    pub content: String,
+}
