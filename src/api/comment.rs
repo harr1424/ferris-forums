@@ -42,13 +42,14 @@ pub async fn get_comments(pool: Data<PgPool>, path: Path<Uuid>) -> Result<Json<V
     Ok(Json(comments))
 }
 
-#[patch("/comments")]
+#[patch("/comments/{comments_id}")]
 pub async fn update_comment(
     pool: Data<PgPool>,
-    body: Json<UpdateComment>,
+    path: Path<Uuid>,
+    body: String,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let comment_id = body.id;
-    let update_content = &body.content;
+    let comment_id = path.into_inner();
+    let update_content = &body;
 
     todo!();
     // UPDATE posts SET content = update_content WHERE id = comment_id
