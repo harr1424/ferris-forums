@@ -43,6 +43,15 @@ pub async fn get_post(
     Ok(Json(PostResponse { post, comments }))
 }
 
+#[get("/posts/{sub}")]
+pub async fn get_posts_by_sub(
+    pool: Data<PgPool>,
+    sub: Path<String>,
+) -> Result<Json<Vec<Post>>, actix_web::Error> {
+    todo!();
+    // SELECT * FROM posts WHERE sub = sub
+}
+
 #[patch("/posts/{id}")]
 pub async fn update_post(
     pool: Data<PgPool>,
