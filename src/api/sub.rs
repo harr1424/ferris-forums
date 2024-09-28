@@ -8,7 +8,7 @@ use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-#[post("/subs/{name}/{description}")]
+#[post("/subs/")]
 pub async fn create_sub(
     pool: Data<PgPool>,
     body: Json<Sub>,
@@ -24,6 +24,16 @@ pub async fn get_all_subs(pool: Data<PgPool>) -> Result<Json<Vec<Sub>>, actix_we
     // SELECT * FROM subs
 }
 
+#[get("/subs/{name}")]
+pub async fn get_sub(
+    pool: Data<PgPool>,
+    path: Path<String>,
+) -> Result<Json<Vec<Sub>>, actix_web::Error> {
+    let name = path.into_inner();
+    todo!();
+    // SELECT * FROM subs WHERE name = name
+}
+
 #[patch("/subs")]
 pub async fn update_sub(
     pool: Data<PgPool>,
@@ -37,4 +47,15 @@ pub async fn update_sub(
     } else {
         return Ok(HttpResponse::BadRequest().body("Description is missing"));
     }
+}
+
+#[delete("/subs/{name}")]
+pub async fn delete_sub(
+    pool: Data<PgPool>,
+    path: Path<String>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let name = path.into_inner();
+
+    todo!();
+    // DELETE FROM subs WHERE name = name
 }
