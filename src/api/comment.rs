@@ -1,4 +1,4 @@
-use crate::model::comment::{Comment, NewComment, UpdateComment};
+use crate::model::comment::{Comment, NewComment};
 use crate::repo::comment as comment_repo;
 use actix_web::{
     delete, get, patch, post,

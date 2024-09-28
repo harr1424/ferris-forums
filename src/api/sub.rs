@@ -1,6 +1,6 @@
 use crate::model::post::{NewPost, Post, PostResponse};
 use crate::model::sub::Sub;
-use crate::repo::{comment, post};
+use crate::repo::sub;
 use actix_web::http::StatusCode;
 use actix_web::HttpResponseBuilder;
 use actix_web::{delete, get, patch, post, web::Data, web::Json, web::Path, HttpResponse};
@@ -22,6 +22,20 @@ pub async fn create_sub(
 pub async fn get_all_subs(pool: Data<PgPool>) -> Result<Json<Vec<Sub>>, actix_web::Error> {
     todo!();
     // SELECT * FROM subs
+}
+
+#[get("/subs/{user_id}")]
+pub async fn get_subs_by_user_id(
+    pool: Data<PgPool>,
+    path: Path<i32>,
+) -> Result<Json<Vec<Sub>>, actix_web::Error> {
+    let user_id = path.into_inner();
+
+    todo!();
+    // SELECT subs.*
+    // FROM subs
+    // INNER JOIN subscriptions ON subs.name = subscriptions.sub_name
+    // WHERE subscriptions.user_id = user_id
 }
 
 #[get("/subs/{name}")]
