@@ -40,6 +40,6 @@ impl User {
 #[derive(Serialize, Deserialize)]
 pub struct NewUser {
     pub username: String,
-    pub password_hash: String,
+    pub password: String,
     pub is_moderator: bool,
 }
