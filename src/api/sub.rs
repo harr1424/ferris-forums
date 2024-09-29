@@ -1,27 +1,34 @@
-use crate::model::post::{NewPost, Post, PostResponse};
 use crate::model::sub::Sub;
-use crate::repo::sub;
-use actix_web::http::StatusCode;
-use actix_web::HttpResponseBuilder;
+use crate::repo::sub as sub_repo;
 use actix_web::{delete, get, patch, post, web::Data, web::Json, web::Path, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
-use uuid::Uuid;
 
 #[post("/subs/")]
 pub async fn create_sub(
     pool: Data<PgPool>,
     body: Json<Sub>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    todo!();
-    // INSERT INTO subs (name, description)
-    // VALUES ('example_name', 'This is a description');
+    let new_sub = Sub {
+        name: body.name.clone(),
+        description: body.description.clone(),
+        created_at: Utc::now(),
+    };
+
+    let sub_id = sub_repo::create_sub(&pool, &new_sub)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(HttpResponse::Ok().body(sub_id.to_string()))
 }
 
 #[get("/subs")]
 pub async fn get_all_subs(pool: Data<PgPool>) -> Result<Json<Vec<Sub>>, actix_web::Error> {
-    todo!();
-    // SELECT * FROM subs
+    let subs = sub_repo::get_all_subs(&pool)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(Json(subs))
 }
 
 #[get("/subs/{user_id}")]
@@ -31,21 +38,25 @@ pub async fn get_subs_by_user_id(
 ) -> Result<Json<Vec<Sub>>, actix_web::Error> {
     let user_id = path.into_inner();
 
-    todo!();
-    // SELECT subs.*
-    // FROM subs
-    // INNER JOIN subscriptions ON subs.name = subscriptions.sub_name
-    // WHERE subscriptions.user_id = user_id
+    let subs = sub_repo::get_subs_by_user_id(&pool, user_id)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(Json(subs))
 }
 
 #[get("/subs/{name}")]
-pub async fn get_sub(
+pub async fn get_sub_by_name(
     pool: Data<PgPool>,
     path: Path<String>,
-) -> Result<Json<Vec<Sub>>, actix_web::Error> {
+) -> Result<Json<Sub>, actix_web::Error> {
     let name = path.into_inner();
-    todo!();
-    // SELECT * FROM subs WHERE name = name
+
+    let sub = sub_repo::get_sub_by_name(&pool, &name)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(Json(sub))
 }
 
 #[patch("/subs")]
@@ -53,14 +64,12 @@ pub async fn update_sub(
     pool: Data<PgPool>,
     body: Json<Sub>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let update_name = &body.name;
+    let sub = body.into_inner();
+    let (name, description) = sub_repo::update_sub(&pool, &sub)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
-    if let Some(update_description) = &body.description {
-        // UPDATE subs SET description = update_description WHERE name = update_name
-        todo!();
-    } else {
-        return Ok(HttpResponse::BadRequest().body("Description is missing"));
-    }
+    Ok(HttpResponse::Ok().body(format!("{} -> {}", name, description)))
 }
 
 #[delete("/subs/{name}")]
@@ -70,6 +79,9 @@ pub async fn delete_sub(
 ) -> Result<HttpResponse, actix_web::Error> {
     let name = path.into_inner();
 
-    todo!();
-    // DELETE FROM subs WHERE name = name
+    sub_repo::delete_sub(&pool, name.clone())
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(HttpResponse::Ok().body(format!("{} was deleted", name)))
 }

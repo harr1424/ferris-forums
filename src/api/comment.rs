@@ -49,12 +49,13 @@ pub async fn update_comment(
     body: String,
 ) -> Result<HttpResponse, actix_web::Error> {
     let comment_id = path.into_inner();
-    let update_content = &body;
+    let update_content = String::from(&body);
 
-    todo!();
-    // UPDATE posts SET content = update_content WHERE id = comment_id
+    let comment_id = comment_repo::update_comment(&pool, comment_id, update_content.clone())
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
-    Ok(HttpResponse::Ok().body(comment_id.to_string()))
+    Ok(HttpResponse::Ok().body(format!("{} -> {}", comment_id.to_string(), update_content)))
 }
 
 #[delete("/comments/{comment_id}")]
@@ -64,8 +65,9 @@ pub async fn delete_comment(
 ) -> Result<HttpResponse, actix_web::Error> {
     let comment_id = path.into_inner();
 
-    todo!();
-    // DELETE FROM comments where id = comment_id
+    comment_repo::delete_comment(&pool, comment_id)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
-    Ok(HttpResponse::Ok().body(comment_id.to_string()))
+    Ok(HttpResponse::Ok().body(format!("{} was deleted", comment_id.to_string())))
 }

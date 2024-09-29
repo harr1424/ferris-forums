@@ -52,3 +52,37 @@ pub async fn get_posts_by_sub(pool: &PgPool, sub_name: &str) -> Result<Vec<Post>
 
     Ok(posts)
 }
+
+pub async fn update_post(
+    pool: &PgPool,
+    post_id: Uuid,
+    update_content: String,
+) -> Result<Uuid, sqlx::Error> {
+    sqlx::query!(
+        r#"
+        UPDATE posts
+        SET content = $1
+        WHERE id = $2
+        "#,
+        update_content,
+        post_id,
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(post_id)
+}
+
+pub async fn delete_post(pool: &PgPool, post_id: Uuid) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        r#"
+        DELETE FROM posts
+        WHERE id = $1
+        "#,
+        post_id
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}

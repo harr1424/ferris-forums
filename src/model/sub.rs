@@ -4,6 +4,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize)]
 pub struct Sub {
     pub name: String,
-    pub description: Option<String>,
+    pub description: String,
     pub created_at: DateTime<Utc>,
 }

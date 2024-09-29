@@ -1,7 +1,5 @@
 use crate::model::user::{NewUser, User};
-use crate::repo::{comment, post};
-use actix_web::http::StatusCode;
-use actix_web::HttpResponseBuilder;
+use crate::repo::user;
 use actix_web::{delete, get, patch, post, web::Data, web::Json, web::Path, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;

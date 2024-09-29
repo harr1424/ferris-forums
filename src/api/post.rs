@@ -1,5 +1,5 @@
 use crate::model::post::{NewPost, Post, PostResponse};
-use crate::repo::{comment, post};
+use crate::repo::{comment as comment_repo, post as post_repo};
 use actix_web::{delete, get, patch, post, web::Data, web::Json, web::Path, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
@@ -20,7 +20,7 @@ pub async fn create_post(
         timestamp: Utc::now(),
     };
 
-    let post_id = post::create_post(&pool, &new_post)
+    let post_id = post_repo::create_post(&pool, &new_post)
         .await
         .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
@@ -33,10 +33,10 @@ pub async fn get_post(
     path: Path<Uuid>,
 ) -> Result<Json<PostResponse>, actix_web::Error> {
     let post_id = path.into_inner();
-    let post = post::get_post(&pool, post_id)
+    let post = post_repo::get_post(&pool, post_id)
         .await
         .map_err(|e| actix_web::error::ErrorNotFound(e))?;
-    let comments = comment::get_comments_by_post(&pool, post_id)
+    let comments = comment_repo::get_comments_by_post(&pool, post_id)
         .await
         .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
@@ -48,8 +48,13 @@ pub async fn get_posts_by_sub(
     pool: Data<PgPool>,
     sub: Path<String>,
 ) -> Result<Json<Vec<Post>>, actix_web::Error> {
-    todo!();
-    // SELECT * FROM posts WHERE sub = sub
+    let sub_name = sub.into_inner();
+
+    let posts = post_repo::get_posts_by_sub(&pool, &sub_name)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(Json(posts))
 }
 
 #[patch("/posts/{id}")]
@@ -60,10 +65,11 @@ pub async fn update_post(
 ) -> Result<HttpResponse, actix_web::Error> {
     let post_id = path.into_inner();
 
-    todo!();
-    // UPDATE posts SET content = update_content WHERE id = post_id
+    let post_id = post_repo::update_post(&pool, post_id, update_content.clone())
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
-    Ok(HttpResponse::Ok().body(post_id.to_string()))
+    Ok(HttpResponse::Ok().body(format!("{} -> {}", post_id.to_string(), update_content)))
 }
 
 #[delete("/posts/{id}")]
@@ -73,8 +79,9 @@ pub async fn delete_post(
 ) -> Result<HttpResponse, actix_web::Error> {
     let post_id = path.into_inner();
 
-    todo!();
-    // DELETE FROM posts where id = post_id
+    let post_id = post_repo::delete_post(&pool, post_id)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
-    Ok(HttpResponse::Ok().body(post_id.to_string()))
+    Ok(HttpResponse::Ok().body(format!("{:?} was deleted", post_id)))
 }

@@ -40,3 +40,37 @@ pub async fn get_comments_by_post(
 
     Ok(comments)
 }
+
+pub async fn update_comment(
+    pool: &PgPool,
+    comment_id: Uuid,
+    new_comment: String,
+) -> Result<Uuid, sqlx::Error> {
+    sqlx::query!(
+        r#"
+        UPDATE comments
+        SET content = $1
+        WHERE id = $2
+        "#,
+        new_comment,
+        comment_id,
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(comment_id)
+}
+
+pub async fn delete_comment(pool: &PgPool, comment_id: Uuid) -> Result<Uuid, sqlx::Error> {
+    sqlx::query!(
+        r#"
+        DELETE FROM comments
+        WHERE id = $1
+        "#,
+        comment_id,
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(comment_id)
+}
