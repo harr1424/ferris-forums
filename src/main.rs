@@ -1,10 +1,10 @@
 mod api;
 mod model;
 mod repo;
+mod routing;
 
 use actix_web::{middleware::Logger, web::Data, App, HttpServer};
-use api::comment::{create_comment, get_comments};
-use api::post::{create_post, get_post};
+
 use sqlx::postgres::PgPoolOptions;
 use std::env;
 
@@ -27,10 +27,10 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(logger)
             .app_data(Data::new(pool.clone()))
-            .service(get_post)
-            .service(create_post)
-            .service(get_comments)
-            .service(create_comment)
+            .configure(routing::configure_post_routes)
+            .configure(routing::configure_comment_routes)
+            .configure(routing::configure_user_routes)
+            .configure(routing::configure_sub_routes)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

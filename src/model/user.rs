@@ -51,3 +51,53 @@ pub struct DbAddUser {
     pub is_moderator: bool,
     pub created_at: DateTime<Utc>,
 }
+
+#[cfg(test)]
+mod user_model_tests {
+    use super::*;
+    #[test]
+    fn test_hash_password_success() {
+        let password = "strongpassword";
+        let result = User::hash_password(password);
+        assert!(
+            result.is_ok(),
+            "Password hashing failed: {:?}",
+            result.err()
+        );
+    }
+
+    #[test]
+    fn test_verify_password_success() {
+        let password = "strongpassword";
+        let password_hash = User::hash_password(password).unwrap();
+
+        let user = User {
+            id: 1,
+            username: "testuser".to_string(),
+            password_hash,
+            is_moderator: false,
+            created_at: Utc::now(),
+        };
+
+        let result = user.verify_password(password);
+        assert!(result.unwrap(), "Password verification failed");
+    }
+
+    #[test]
+    fn test_verify_password_failure() {
+        let password = "strongpassword";
+        let wrong_password = "wrongpassword";
+        let password_hash = User::hash_password(password).unwrap();
+
+        let user = User {
+            id: 1,
+            username: "testuser".to_string(),
+            password_hash,
+            is_moderator: false,
+            created_at: Utc::now(),
+        };
+
+        let result = user.verify_password(wrong_password);
+        assert!(!result.unwrap(), "Password verification should have failed");
+    }
+}
