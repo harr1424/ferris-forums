@@ -4,13 +4,11 @@ use argon2::{
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
     pub username: String,
-    #[serde(skip_serializing)]
     pub password_hash: String,
     pub is_moderator: bool,
     pub created_at: DateTime<Utc>,
@@ -28,9 +26,10 @@ impl User {
     }
 
     pub fn verify_password(&self, password: &str) -> Result<bool, argon2::password_hash::Error> {
-        let parsed_hash = PasswordHash::new(password)?;
+        let parsed_stored_hash = PasswordHash::new(&self.password_hash)?;
+
         let result = Argon2::default()
-            .verify_password(password.as_bytes(), &parsed_hash)
+            .verify_password(password.as_bytes(), &parsed_stored_hash)
             .is_ok();
 
         Ok(result)
@@ -42,4 +41,13 @@ pub struct NewUser {
     pub username: String,
     pub password: String,
     pub is_moderator: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DbAddUser {
+    pub username: String,
+    #[serde(skip_serializing)]
+    pub password_hash: String,
+    pub is_moderator: bool,
+    pub created_at: DateTime<Utc>,
 }
