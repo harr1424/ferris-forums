@@ -146,7 +146,7 @@ pub async fn update_user_password(
         .await
         .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
-    Ok(HttpResponse::Ok().body(format!("{} password has been updated", user_id.to_string())))
+    Ok(HttpResponse::Ok().body(format!("User ID {} password has been updated", user_id.to_string())))
 }
 
 #[delete("/users/{user_id}")]
