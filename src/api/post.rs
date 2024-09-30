@@ -43,7 +43,7 @@ pub async fn get_post(
     Ok(Json(PostResponse { post, comments }))
 }
 
-#[get("/posts/{sub}")]
+#[get("/posts/for_sub/{sub}")]
 pub async fn get_posts_by_sub(
     pool: Data<PgPool>,
     sub: Path<String>,

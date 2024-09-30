@@ -4,7 +4,7 @@ use actix_web::{delete, get, patch, post, web::Data, web::Json, web::Path, HttpR
 use chrono::Utc;
 use sqlx::PgPool;
 
-#[post("/subs/")]
+#[post("/subs")]
 pub async fn create_sub(
     pool: Data<PgPool>,
     body: Json<Sub>,
@@ -31,7 +31,7 @@ pub async fn get_all_subs(pool: Data<PgPool>) -> Result<Json<Vec<Sub>>, actix_we
     Ok(Json(subs))
 }
 
-#[get("/subs/{user_id}")]
+#[get("/subs/for_user/{user_id}")]
 pub async fn get_subs_by_user_id(
     pool: Data<PgPool>,
     path: Path<i32>,

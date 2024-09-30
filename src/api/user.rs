@@ -23,10 +23,10 @@ pub async fn create_user(
         .await
         .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
-    Ok(HttpResponse::Ok().body(user_id.to_string()))
+    Ok(HttpResponse::Ok().body(format!("User ID {} has been created", user_id.to_string())))
 }
 
-#[get("/users/{user_id}")]
+#[get("/users/id/{user_id}")]
 pub async fn get_user_by_id(
     pool: Data<PgPool>,
     path: Path<i32>,
@@ -40,7 +40,7 @@ pub async fn get_user_by_id(
     Ok(Json(user))
 }
 
-#[get("/users/{sub_name}")]
+#[get("/users/username/{username}")]
 pub async fn get_user_by_username(
     pool: Data<PgPool>,
     path: Path<String>,
@@ -54,7 +54,7 @@ pub async fn get_user_by_username(
     Ok(Json(user))
 }
 
-#[get("/users/{sub_name}")]
+#[get("/users/for_sub/{sub_name}")]
 pub async fn get_users_by_sub(
     pool: Data<PgPool>,
     path: Path<String>,
@@ -132,7 +132,7 @@ pub async fn remove_mod_status(
     Ok(HttpResponse::Ok().body(format!("{} is no longer a moderator", user_id.to_string())))
 }
 
-#[patch("/users/creds/{user_id}")]
+#[patch("/users/update/{user_id}")]
 pub async fn update_user_password(
     pool: Data<PgPool>,
     path: Path<i32>,
