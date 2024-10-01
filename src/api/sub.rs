@@ -1,6 +1,6 @@
 use crate::model::sub::Sub;
 use crate::repo::sub as sub_repo;
-use actix_web::{delete, get, patch, post, web::Data, web::Json, web::Path, HttpResponse};
+use actix_web::{delete, get, patch, post, put, web::Data, web::Json, web::Path, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
 
@@ -20,6 +20,24 @@ pub async fn create_sub(
         .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
     Ok(HttpResponse::Ok().body(sub_id.to_string()))
+}
+
+#[put("/subs/{sub_name}")]
+pub async fn subscribe_user_to_sub(
+    pool: Data<PgPool>,
+    path: Path<String>,
+    body: String,
+) -> Result<HttpResponse, actix_web::Error> {
+    let sub_name = path.into_inner();
+    let user_id = match body.parse::<i32>() {
+        Ok(id) => id,
+        Err(_) => return Ok(HttpResponse::BadRequest().body("Invalid user ID")),
+    };
+    sub_repo::subscribe_user_to_sub(&pool, user_id, &sub_name)
+        .await
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+
+    Ok(HttpResponse::Ok().body(format!("{} has been subscribed to {}", body, sub_name)))
 }
 
 #[get("/subs")]

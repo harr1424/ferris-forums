@@ -17,6 +17,25 @@ pub async fn create_sub(pool: &PgPool, sub: &Sub) -> Result<String, sqlx::Error>
     Ok(sub.name.clone())
 }
 
+pub async fn subscribe_user_to_sub(
+    pool: &PgPool,
+    user_id: i32,
+    sub_name: &str,
+) -> Result<(), sqlx::Error> {
+    sqlx::query!(
+        r#"
+        INSERT INTO subscriptions (user_id, sub_name)
+        VALUES ($1, $2)
+        "#,
+        user_id,
+        sub_name
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(())
+}
+
 pub async fn get_all_subs(pool: &PgPool) -> Result<Vec<Sub>, sqlx::Error> {
     let subs = sqlx::query_as!(
         Sub,

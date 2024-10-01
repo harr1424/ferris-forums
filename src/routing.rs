@@ -23,7 +23,8 @@ pub fn configure_sub_routes(cfg: &mut ServiceConfig) {
         .service(get_subs_by_user_id)
         .service(get_sub_by_name)
         .service(update_sub)
-        .service(delete_sub);
+        .service(delete_sub)
+        .service(subscribe_user_to_sub);
 }
 
 pub fn configure_comment_routes(cfg: &mut ServiceConfig) {
